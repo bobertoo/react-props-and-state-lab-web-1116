@@ -14,6 +14,39 @@ class App extends React.Component {
         type: 'all',
       }
     };
+
+    this.onFindPetsClick = this.onFindPetsClick.bind(this);
+    this.onChangeType = this.onChangeType.bind(this);
+    this.onAdoptPet = this.onAdoptPet.bind(this);
+  }
+
+  onFindPetsClick() {
+    let url = '/api/pets';
+    if (this.state.filters.type != 'all') {
+      url += `?type=${this.state.filters.type}`;
+    }
+    fetch(url).then(function(response) {
+      if(response.ok) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    }).then((out) => {
+      this.setState({
+        pets: out
+      });
+    }).catch(err => console.error(err));
+  }
+
+  onAdoptPet(petID) {
+    this.setState({
+      adoptedPets: [...this.state.adoptedPets, petID]
+    });
+  }
+
+  onChangeType(type) {
+    this.setState({
+      filters: {type: type}
+    });
   }
 
   render() {
@@ -25,10 +58,13 @@ class App extends React.Component {
         <div className="ui container">
           <div className="ui grid">
             <div className="four wide column">
-              <Filters />
+              <Filters
+                onFindPetsClick={ this.onFindPetsClick }
+                onChangeType={ this.onChangeType }
+              />
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser pets={ this.state.pets } onAdoptPet={ this.onAdoptPet } />
             </div>
           </div>
         </div>
